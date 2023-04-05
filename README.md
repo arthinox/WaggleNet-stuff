@@ -4,3 +4,6 @@
 - Raspberry Layout:
 - HX711:
   - only the first voltage input pin works
+
+#### Raspberry Pico  
+We are using this githup repo for our pico: https://github.com/robert-hh/hx711
