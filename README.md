@@ -7,3 +7,8 @@
 
 #### Raspberry Pico  
 We are using this githup repo for our pico: https://github.com/robert-hh/hx711
+
+#### Load Cell wiring:
+ ![image](https://user-images.githubusercontent.com/106136532/232926865-c6d79ef4-b591-489b-a721-a6c6bf472e3a.png)
+![image](https://user-images.githubusercontent.com/106136532/232926893-ce4f3c47-bcab-4495-9d63-a51e880d03c9.png)
+
