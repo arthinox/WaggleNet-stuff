@@ -1,37 +1,76 @@
-from machine import Pin
-import utime
+import RPi.GPIO as gpio
 
-SCK = Pin(6, Pin.OUT)
-switch = Pin(18, Pin.IN)
-LED = Pin(13, Pin.OUT)
+import time
+
+import csv
+
+from datetime import datetime
+
+from datetime import date
+
+
+# GPIO on Pi
+DT = 5
+SCK= 6
+
+gpio.setwarnings(False)
+gpio.setmode(gpio.BCM)
+gpio.setup(SCK, gpio.OUT)
+
+# output of count without connecting the load cell, can use it to tare
 
 def readCount():
-    
-    i = 0
-    Count = 0
-    
-    DT = Pin(5, Pin.OUT)
-    DT.high()
-    DT.low()
-    DT = Pin(5, Pin.IN)
 
-    while DT.value() == 1:
-        i = 0
-    
-    for i in range(24):
-        SCK.high()
-        Count = Count << 1
-        SCK.low()
+  i=0
+  Count=0
+
+ # print Count
+ # time.sleep(0.001)
+
+  gpio.setup(DT, gpio.OUT)
+  gpio.output(DT,1)
+  gpio.output(SCK,0)
+  gpio.setup(DT, gpio.IN)
+
+  while gpio.input(DT) == 1:
+
+      i=0
+
+  for i in range(24):
+
+        gpio.output(SCK,1)        
+
+
+        Count = Count<<1
+
+
+        gpio.output(SCK,0)
+
+        #time.sleep(0.001)
+
+        if gpio.input(DT) == 0: 
+
+            Count=Count+1
+
+            #print Count
+
         
-        if DT.value() == 1:
-            Count += 1
-    
-    SCK.high()
-    Count = Count ^ 0x800000
-    SCK.low()
-    return Count
 
-'''
+  gpio.output(SCK,1)
+
+  Count=Count^0x800000 # xor = ^
+
+  #time.sleep(0.001)
+
+  gpio.output(SCK,0)
+
+  return Count
+
+
+
+#### Write to csv ####\
+
+
 print("Please remove anything on the weight scale: (press enter to continue)")
 c = input("")
 x1 = readCount()
@@ -42,24 +81,34 @@ x2 = readCount()
 
 a = (y2-y1)/(x2-x1)
 b = y1 - a*x1
-'''
 
-a = -4.482101*10**(-5)
-b = 381.3089
 
-rtc = machine.RTC()
+with open('raw_data.csv', 'w') as csvfile:
+    
+    filewriter = csv.writer(csvfile, delimiter=',',
+                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    filewriter.writerow(['Date', 'Time', 'Weight'])
+    
+    while 1:
 
-with open("test.txt", "w") as data_file:
-    data_file.write("Date, Time, Weight\n")
+        curr_date = date.today()
+        
+        time_now = datetime.now()
+        
+        curr_time = time_now.strftime("%H:%M:%S")
+        
+        count = readCount()
 
-    while (1):
-        timestamp = rtc.datetime()
-        fake_time = 0
-        weight = readCount()
-        weight = a * weight + b
-        result = round(weight, 3)
-        print("weight:", weight)        
-        timestring="%04d-%02d-%02d %02d:%02d:%02d"%(timestamp[0:3] + timestamp[4:7])
-        data_file.write(timestring + "," + str(weight) + "\n")        
-        data_file.flush()
-        utime.sleep(1)
+        w = count * a + b
+        
+        result = round(w, 3)
+
+        print("Weight: ", result, "kg")
+        
+        filewriter.writerow([curr_date, curr_time, result])
+        
+        csvfile.flush()
+
+        time.sleep(0.5)
+        
+
