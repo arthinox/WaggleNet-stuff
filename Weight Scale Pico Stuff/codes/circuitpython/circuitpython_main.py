@@ -109,6 +109,9 @@ while (state == 1):
         break
     time.sleep(0.15)
 
+sampling_interval = 5
+weights = []
+
 LED.value = 0
 with open("test.txt", "w") as data_file:
     data_file.write("Date, Time, Weight\n")
@@ -117,16 +120,21 @@ with open("test.txt", "w") as data_file:
         weight = readCount()
         weight = a * weight + b
         result = round(weight, 3)
+        weights.append(result)
         print("weight:", weight)
-        timestring = time.localtime()
-        month = timestring[1]
-        day  = timestring[2]
-        hour  = timestring[3]
-        minute  = timestring[4]
-        sec  = timestring[5]
-        timestring1 = str(month) + "/" + str(day) + "," + str(hour) + ":" + str(minute) + ":" + str(sec)
-        data_file.write(timestring1 + "," + str(weight) + "\n")        
-        data_file.flush()
+        if len(weights) == sampling_interval:
+            weights.sort()
+            weight = weights[sampling_interval // 2]
+            timestring = time.localtime()
+            month = timestring[1]
+            day  = timestring[2]
+            hour  = timestring[3]
+            minute  = timestring[4]
+            sec  = timestring[5]
+            timestring1 = str(month) + "/" + str(day) + "," + str(hour) + ":" + str(minute) + ":" + str(sec)
+            data_file.write(timestring1 + "," + str(weight) + "\n")        
+            data_file.flush()
+            weights = []
         time.sleep(1)
 
 

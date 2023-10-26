@@ -32,6 +32,8 @@ def readCount():
     return Count
 
 '''
+Original Calibration Code
+
 print("Please remove anything on the weight scale: (press enter to continue)")
 c = input("")
 x1 = readCount()
@@ -101,20 +103,30 @@ while (state == 1):
 
 a = (y2-y1)/(x2-x1)
 b = y1 - a*x1
+
+sampling_interval = 5
+weight_list = []
+
 LED.low()
+
 with open("test.txt", "w") as data_file:
     data_file.write("Date, Time, Weight\n")
 
     while (1):
         timestamp = rtc.datetime()
-        fake_time = 0
         weight = readCount()
         weight = a * weight + b
         result = round(weight, 3)
-        print("weight:", weight)        
-        timestring="%04d-%02d-%02d %02d:%02d:%02d"%(timestamp[0:3] + timestamp[4:7])
-        data_file.write(timestring + "," + str(weight) + "\n")        
-        data_file.flush()
+        weight_list.append(result)
+        print("weight:", weight) 
+
+        if len(weight_list) == sampling_interval: 
+            weight_list.sort()
+            write_in = weight_list[sampling_interval // 2]      
+            timestring="%04d-%02d-%02d %02d:%02d:%02d"%(timestamp[0:3] + timestamp[4:7])
+            data_file.write(timestring + "," + str(write_in) + "\n")        
+            data_file.flush()
+            weight_list = []
         utime.sleep(1)
 
 

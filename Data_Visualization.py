@@ -5,7 +5,7 @@ count = 0
 tmp = []
 weight = []
 
-with open("C:\\Users\\Victor\\Desktop\\weigh.txt", 'r') as data: # file location depends on where it is on our laptop
+with open("Schmitz Hive Travel (10152023).txt", 'r') as data: # file location depends on where it is on our laptop
     for lines in data.readlines():
         if count == 0:
             count += 1
